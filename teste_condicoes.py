@@ -1,6 +1,6 @@
 # Definindo uma variável
-numero = 3
+numero = 10
 
-# Estrutura if para verificar se o número é maior que 5
-if numero > 5:
-    print("O número é maior que 5.")
+# Estrutura if para verificar se o número é menor que 18
+if numero < 18:
+    print("O número é menor que 18.")
