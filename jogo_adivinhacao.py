@@ -1,4 +1,4 @@
-import random  # Importa o módulo random para gerar números aleatórios
+import random  # Importa o modulo random para gerar numeros aleatorios
 
 # Gera um número aleatório entre 1 e 10
 numero_secreto = random.randint(1, 10)
