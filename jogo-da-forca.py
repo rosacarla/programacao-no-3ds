@@ -24,8 +24,8 @@ else:
     print("Que pena, você perdeu. A palavra era:", palavra_secreta)
     
 """
-Este código ilustra um game loop básico para o jogo da forca, onde 
-o jogador tem um número limitado de tentativas para adivinhar a 
-palavra secreta. O loop continua até que o jogador acerte a palavra
-ou esgote suas tentativas.
+Este código ilustra um game loop básico para o jogo da forca, 
+onde o jogador tem número limitado de tentativas para adivinhar 
+a palavra secreta. O loop continua até que o jogador acerte a 
+palavra ou esgote suas tentativas.
 """
