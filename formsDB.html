@@ -41,10 +41,28 @@
       border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
+      margin-top: 5px;
     }
 
     .form-container button:hover {
       background-color: #0056b3;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      color: green;
+      font-weight: bold;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
     }
 
     ul {
@@ -88,6 +106,11 @@
     li button:hover {
       opacity: 0.9;
     }
+
+    .contador {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -96,46 +119,69 @@
     <input id="nome" placeholder="Nome" />
     <input id="endereco" placeholder="Endereço" />
     <input id="telefone" placeholder="Telefone" />
-    <button onclick="adicionarCliente()">Adicionar</button>
+    <button id="btnAdicionar" onclick="adicionarCliente()">Adicionar</button>
+    <button onclick="limparCampos()">Limpar</button>
+    <div class="feedback" id="feedback"></div>
   </div>
 
+  <div class="search-container">
+    <input id="busca" placeholder="Buscar cliente por nome..." oninput="filtrarClientes()" />
+    <button onclick="ordenarClientes()">Ordenar A-Z</button>
+  </div>
+
+  <div class="contador" id="contadorClientes"></div>
   <h3>Lista de Clientes</h3>
   <ul id="listaClientes"></ul>
 
   <script>
+    let editandoIndex = null;
+
     function carregarClientes() {
       const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
       const lista = document.getElementById('listaClientes');
+      const contador = document.getElementById('contadorClientes');
       lista.innerHTML = '';
-      clientes.forEach((cliente, index) => {
+      const termoBusca = document.getElementById('busca').value.toLowerCase();
+      const filtrados = clientes.filter(c => c.nome.toLowerCase().includes(termoBusca));
+      filtrados.forEach((cliente, index) => {
         const item = document.createElement('li');
         item.innerHTML = `
           <div class="cliente-info">${cliente.nome} - ${cliente.endereco} - ${cliente.telefone}</div>
           <button onclick="editarCliente(${index})">Editar</button>
-          <button onclick="excluirCliente(${index})">Excluir</button>
+          <button onclick="confirmarExclusao(${index})">Excluir</button>
         `;
         lista.appendChild(item);
       });
+      contador.textContent = `Total de clientes: ${clientes.length}`;
     }
 
     function adicionarCliente() {
       const nome = document.getElementById('nome').value;
       const endereco = document.getElementById('endereco').value;
       const telefone = document.getElementById('telefone').value;
-      if (!nome || !endereco || !telefone) return alert("Preencha todos os campos!");
-      const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
-      clientes.push({ nome, endereco, telefone });
-      localStorage.setItem('clientes', JSON.stringify(clientes));
-      document.getElementById('nome').value = '';
-      document.getElementById('endereco').value = '';
-      document.getElementById('telefone').value = '';
-      carregarClientes();
-    }
+      const feedback = document.getElementById('feedback');
 
-    function excluirCliente(index) {
-      const clientes = JSON.parse(localStorage.getItem('clientes'));
-      clientes.splice(index, 1);
+      if (!nome || !endereco || !telefone) {
+        feedback.textContent = "Preencha todos os campos!";
+        feedback.style.color = "red";
+        return;
+      }
+
+      const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+
+      if (editandoIndex !== null) {
+        clientes[editandoIndex] = { nome, endereco, telefone };
+        feedback.textContent = "Cliente atualizado com sucesso!";
+        document.getElementById('btnAdicionar').textContent = "Adicionar";
+        editandoIndex = null;
+      } else {
+        clientes.push({ nome, endereco, telefone });
+        feedback.textContent = "Cliente adicionado com sucesso!";
+      }
+
+      feedback.style.color = "green";
       localStorage.setItem('clientes', JSON.stringify(clientes));
+      limparCampos();
       carregarClientes();
     }
 
@@ -145,7 +191,43 @@
       document.getElementById('nome').value = cliente.nome;
       document.getElementById('endereco').value = cliente.endereco;
       document.getElementById('telefone').value = cliente.telefone;
-      excluirCliente(index);
+      document.getElementById('btnAdicionar').textContent = "Salvar";
+      editandoIndex = index;
+    }
+
+    function confirmarExclusao(index) {
+      if (confirm("Tem certeza que deseja excluir este cliente?")) {
+        excluirCliente(index);
+      }
+    }
+
+    function excluirCliente(index) {
+      const clientes = JSON.parse(localStorage.getItem('clientes'));
+      clientes.splice(index, 1);
+      localStorage.setItem('clientes', JSON.stringify(clientes));
+      carregarClientes();
+      document.getElementById('feedback').textContent = "Cliente excluído com sucesso!";
+      document.getElementById('feedback').style.color = "green";
+    }
+
+    function limparCampos() {
+      document.getElementById('nome').value = '';
+      document.getElementById('endereco').value = '';
+      document.getElementById('telefone').value = '';
+      document.getElementById('btnAdicionar').textContent = "Adicionar";
+      editandoIndex = null;
+      document.getElementById('feedback').textContent = '';
+    }
+
+    function ordenarClientes() {
+      const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+      clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+      localStorage.setItem('clientes', JSON.stringify(clientes));
+      carregarClientes();
+    }
+
+    function filtrarClientes() {
+      carregarClientes();
     }
 
     carregarClientes();
